@@ -1,0 +1,6 @@
+{
+  "name": "Venom AI Assistant",
+  "description": "A futuristic, Jarvis-inspired AI assistant named Venom with voice interaction and advanced reasoning capabilities.",
+  "requestFramePermissions": ["microphone", "camera"],
+  "majorCapabilities": []
+}

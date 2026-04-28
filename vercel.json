@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/v1/answer", "destination": "/api/solve" },
+    { "source": "/api/solve", "destination": "/api/solve" }
+  ]
+}

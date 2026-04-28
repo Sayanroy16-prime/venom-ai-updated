@@ -1,0 +1,18 @@
+[project]
+name = "venom-neural-link"
+version = "2.5.0"
+description = "Venom Neural Agent for Hackathon"
+requires-python = ">=3.10,<3.13"
+dependencies = [
+    "fastapi",
+    "pydantic",
+    "uvicorn",
+    "google-genai",
+    "python-dotenv",
+    "langchain",
+    "crewai"
+]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"

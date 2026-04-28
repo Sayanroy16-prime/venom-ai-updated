@@ -1,0 +1,116 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: /users/{userId}
+    // Fields: uid, email, displayName, photoURL, preferences, createdAt
+    //
+    // Collection: /users/{userId}/messages/{messageId}
+    // Fields: uid, text, role, timestamp
+    //
+    // Collection: /users/{userId}/contacts/{contactId}
+    // Fields: uid, name, email, phone, source
+    //
+    // Collection: /users/{userId}/integrations/{integrationId}
+    // Fields: uid, appName, status, lastSynced
+    //
+    // Collection: /users/{userId}/tasks/{taskId}
+    // Fields: uid, title, description, dueAt, status, priority, type, createdAt
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function isValidTimestamp(ts) {
+      return ts is string && ts.matches("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.*Z?$");
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'email']) &&
+             data.uid == request.auth.uid &&
+             isValidEmail(data.email);
+    }
+
+    function isValidMessage(data) {
+      return data.keys().hasAll(['uid', 'text', 'role', 'timestamp']) &&
+             data.uid == request.auth.uid &&
+             data.role in ['user', 'model'] &&
+             isValidTimestamp(data.timestamp);
+    }
+
+    function isValidContact(data) {
+      return data.keys().hasAll(['uid', 'name']) &&
+             data.uid == request.auth.uid &&
+             data.name is string && data.name.size() > 0;
+    }
+
+    function isValidIntegration(data) {
+      return data.keys().hasAll(['uid', 'appName', 'status']) &&
+             data.uid == request.auth.uid &&
+             data.status in ['connected', 'disconnected', 'error'];
+    }
+
+    function isValidTask(data) {
+      return data.keys().hasAll(['uid', 'title', 'dueAt', 'status']) &&
+             data.uid == request.auth.uid &&
+             data.title is string && data.title.size() > 0 &&
+             isValidTimestamp(data.dueAt) &&
+             data.status in ['pending', 'completed', 'archived'];
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidUser(request.resource.data);
+      allow update: if isOwner(userId) && isValidUser(request.resource.data);
+
+      match /messages/{messageId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidMessage(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+
+      match /contacts/{contactId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidContact(request.resource.data);
+        allow update: if isOwner(userId) && isValidContact(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+
+      match /integrations/{integrationId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidIntegration(request.resource.data);
+        allow update: if isOwner(userId) && isValidIntegration(request.resource.data);
+      }
+
+      match /tasks/{taskId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidTask(request.resource.data);
+        allow update: if isOwner(userId) && isValidTask(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+    }
+  }
+}

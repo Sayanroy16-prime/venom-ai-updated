@@ -1,0 +1,100 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile and system preferences",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "preferences": {
+          "type": "object",
+          "properties": {
+            "offlineMode": { "type": "boolean" },
+            "muted": { "type": "boolean" },
+            "theme": { "type": "string" }
+          }
+        },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "Chat history between user and Venom",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "text": { "type": "string" },
+        "role": { "type": "string", "enum": ["user", "model"] },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "text", "role", "timestamp"]
+    },
+    "Contact": {
+      "title": "Contact",
+      "description": "User contacts synced from various sources",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "phone": { "type": "string" },
+        "source": { "type": "string", "enum": ["google", "local", "manual"] }
+      },
+      "required": ["uid", "name"]
+    },
+    "AppIntegration": {
+      "title": "AppIntegration",
+      "description": "Stored credentials and status for external apps",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "appName": { "type": "string" },
+        "status": { "type": "string", "enum": ["connected", "disconnected", "error"] },
+        "lastSynced": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "appName", "status"]
+    },
+    "Task": {
+      "title": "Task",
+      "description": "Scheduled tasks and reminders",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "dueAt": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["pending", "completed", "archived"] },
+        "priority": { "type": "string", "enum": ["low", "medium", "high", "critical"] },
+        "type": { "type": "string", "enum": ["reminder", "task", "mission"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "title", "dueAt", "status"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Private user profile data"
+    },
+    "/users/{userId}/messages/{messageId}": {
+      "schema": "Message",
+      "description": "User chat history"
+    },
+    "/users/{userId}/contacts/{contactId}": {
+      "schema": "Contact",
+      "description": "User contacts"
+    },
+    "/users/{userId}/integrations/{integrationId}": {
+      "schema": "AppIntegration",
+      "description": "App connection status"
+    },
+    "/users/{userId}/tasks/{taskId}": {
+      "schema": "Task",
+      "description": "User scheduled tasks"
+    }
+  }
+}

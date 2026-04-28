@@ -1,0 +1,21 @@
+{
+  "short_name": "Venom",
+  "name": "Venom Neural Link",
+  "icons": [
+    {
+      "src": "https://picsum.photos/seed/venom-icon/192/192",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "https://picsum.photos/seed/venom-icon/512/512",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#020505",
+  "display": "standalone",
+  "theme_color": "#00f2ff",
+  "description": "Futuristic AI Assistant HUD"
+}
